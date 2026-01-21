@@ -13,7 +13,7 @@ objp[:,:2] = np.mgrid[0:3,0:6].T.reshape(-1,2)
 objpoints = [] # 3d point in real world space
 imgpoints = [] # 2d points in image plane.
  
-images = glob.glob('.//image_data//*.png')
+images = glob.glob('/home/logesh/fanuc_ws/src/Camera-Calibration/data/calib_data_finger/checkboard_data/*.png')
  
 for fname in images:
     img = cv.imread(fname)

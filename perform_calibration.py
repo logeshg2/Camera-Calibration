@@ -27,7 +27,7 @@ from calibration import *
 arg_parser = argparse.ArgumentParser()
 arg_parser.add_argument("--device", default=0, type=int, help="Camera device ID", required=True)
 arg_parser.add_argument("--cameraModel", default='realsense', type=str, help="Camera model - [realsense, finger]", required=True)
-arg_parser.add_argument("--calibType", default='camCalib', type=int, help="Camera calibration type - [camCalib, HandEye]", required=True)
+arg_parser.add_argument("--calibType", default='camCalib', type=str, help="Camera calibration type - [camCalib, handEye]", required=True)
 cam_id = arg_parser.parse_args().device
 cam_model = arg_parser.parse_args().cameraModel
 calib_type = arg_parser.parse_args().calibType
@@ -49,15 +49,17 @@ else:
     hand_eye_calib = True
 
 # camera object
-cam = cv2.VideoCapture(cam_id)    
+cam = cv2.VideoCapture(cam_id)
+cam.set(cv2.CAP_PROP_FRAME_WIDTH, 640.0)
+cam.set(cv2.CAP_PROP_FRAME_HEIGHT, 480.0)   
 
 # load camera parameters
 if realsense_camera and hand_eye_calib:
-    cam_matrix = load_calib_data("./data/calib_data_realsense/camera_matrix.pkl")
-    dist_coef = load_calib_data("./data/calib_data_realsense/dist_coef.pkl")
+    cam_matrix = load_calib_data("/home/logesh/fanuc_ws/src/Camera-Calibration/data/calib_data_realsense/camera_matrix.pkl")
+    dist_coef = load_calib_data("/home/logesh/fanuc_ws/src/Camera-Calibration/data/calib_data_realsense/dist_coef.pkl")
 elif finger_camera and hand_eye_calib:
-    cam_matrix = load_calib_data("./data/calib_data_finger/camera_matrix.pkl")
-    dist_coef = load_calib_data("./data/calib_data_finger/dist_coef.pkl")
+    cam_matrix = load_calib_data("/home/logesh/fanuc_ws/src/Camera-Calibration/data/calib_data_finger/camera_matrix.pkl")
+    dist_coef = load_calib_data("/home/logesh/fanuc_ws/src/Camera-Calibration/data/calib_data_finger/dist_coef.pkl")
 # print(cam_matrix, dist_coef, sep='\n')
 
 
@@ -65,13 +67,13 @@ elif finger_camera and hand_eye_calib:
 def perform_camera_calibration():
     # save directory:
     if realsense_camera:
-        save_dir = "./data/calib_data_realsense/checkboard_data/"
-        cam_mat_dir = "./data/calib_data_realsense/camera_matrix.pkl"
-        dist_coef_dir = "./data/calib_data_realsense/dist_coef.pkl"
+        save_dir = "/home/logesh/fanuc_ws/src/Camera-Calibration/data/calib_data_realsense/checkboard_data/"
+        cam_mat_dir = "/home/logesh/fanuc_ws/src/Camera-Calibration/data/calib_data_realsense/camera_matrix.pkl"
+        dist_coef_dir = "/home/logesh/fanuc_ws/src/Camera-Calibration/data/calib_data_realsense/dist_coef.pkl"
     else:
-        save_dir = "./data/calib_data_finger/checkboard_data/"
-        cam_mat_dir = "./data/calib_data_finger/camera_matrix.pkl"
-        dist_coef_dir = "./data/calib_data_finger/dist_coef.pkl"
+        save_dir = "/home/logesh/fanuc_ws/src/Camera-Calibration/data/calib_data_finger/checkboard_data/"
+        cam_mat_dir = "/home/logesh/fanuc_ws/src/Camera-Calibration/data/calib_data_finger/camera_matrix.pkl"
+        dist_coef_dir = "/home/logesh/fanuc_ws/src/Camera-Calibration/data/calib_data_finger/dist_coef.pkl"
 
     # collect data
     image_array = collect_checker_board_images(
@@ -93,23 +95,24 @@ def perform_camera_calibration():
     save_calib_data(dist_cof, dist_coef_dir)
 
     # debug
-    print(cam_mat, dist_cof, sep="\n")
+    print(_)
+    print(np.round(cam_mat, 2), np.round(dist_cof, 2), sep="\n")
 
 
 # function to perform hand-eye calibration
 def perform_hand_eye_calibration():
     # hand eye image data save dir
     if realsense_camera:
-        img_save_dir = "./data/calib_data_realsense/hand_eye_data/images"
+        img_save_dir = "/home/logesh/fanuc_ws/src/Camera-Calibration/data/calib_data_realsense/hand_eye_data/images"
     else:
-        img_save_dir = "./data/calib_data_finger/hand_eye_data/images"
+        img_save_dir = "/home/logesh/fanuc_ws/src/Camera-Calibration/data/calib_data_finger/hand_eye_data/images"
     # collect data
     target_poses, robot_ee_poses = collect_eye_hand_data_fanuc(
         camera = cam,
         camera_matrix = cam_matrix,
         dist_coeffs = dist_coef,
         marker_length = 70,
-        aruco = True,
+        aruco = False,
         cols = 3,
         rows = 6,
         square_size = 25,
@@ -130,15 +133,15 @@ def perform_hand_eye_calibration():
 
     # save calibration tf's
     if realsense_camera:
-        save_calib_data(R_g2b, "./data/calib_data_realsense/hand_eye_data/R_g2b.pkl")
-        save_calib_data(R_t2c, "./calib_data_realsense/hand_eye_data/R_t2c.pkl")
-        save_calib_data(t_g2b, "./calib_data_realsense/hand_eye_data/t_g2b.pkl")
-        save_calib_data(t_t2c, "./calib_data_realsense/hand_eye_data/t_t2c.pkl")
+        save_calib_data(R_g2b, "/home/logesh/fanuc_ws/src/Camera-Calibration/data/calib_data_realsense/hand_eye_data/R_g2b.pkl")
+        save_calib_data(R_t2c, "/home/logesh/fanuc_ws/src/Camera-Calibration/data/calib_data_realsense/hand_eye_data/R_t2c.pkl")
+        save_calib_data(t_g2b, "/home/logesh/fanuc_ws/src/Camera-Calibration/data/calib_data_realsense/hand_eye_data/t_g2b.pkl")
+        save_calib_data(t_t2c, "/home/logesh/fanuc_ws/src/Camera-Calibration/data/calib_data_realsense/hand_eye_data/t_t2c.pkl")
     else:
-        save_calib_data(R_g2b, "./data/calib_data_finger/hand_eye_data/R_g2b.pkl")
-        save_calib_data(R_t2c, "./data/calib_data_finger/hand_eye_data/R_t2c.pkl")
-        save_calib_data(t_g2b, "./data/calib_data_finger/hand_eye_data/t_g2b.pkl")
-        save_calib_data(t_t2c, "./data/calib_data_finger/hand_eye_data/t_t2c.pkl")
+        save_calib_data(R_g2b, "/home/logesh/fanuc_ws/src/Camera-Calibration/data/calib_data_finger/hand_eye_data/R_g2b.pkl")
+        save_calib_data(R_t2c, "/home/logesh/fanuc_ws/src/Camera-Calibration/data/calib_data_finger/hand_eye_data/R_t2c.pkl")
+        save_calib_data(t_g2b, "/home/logesh/fanuc_ws/src/Camera-Calibration/data/calib_data_finger/hand_eye_data/t_g2b.pkl")
+        save_calib_data(t_t2c, "/home/logesh/fanuc_ws/src/Camera-Calibration/data/calib_data_finger/hand_eye_data/t_t2c.pkl")
 
     # perform hand to eye calibration
     R_b2c, t_b2c = calibrate_eye_hand(
@@ -151,11 +154,11 @@ def perform_hand_eye_calibration():
 
     # save calibration data
     if realsense_camera:
-        save_calib_data(R_b2c, "./data/calib_data_realsense/hand_eye_rotm.pkl")
+        save_calib_data(R_b2c, "/home/logesh/fanuc_ws/src/Camera-Calibration/data/calib_data_realsense/hand_eye_rotm.pkl")
         save_calib_data(t_b2c, "./calib_data_realsense/hand_eye_trans.pkl")
     else:
-        save_calib_data(R_b2c, "./data/calib_data_finger/hand_eye_rotm.pkl")
-        save_calib_data(t_b2c, "./data/calib_data_finger/hand_eye_trans.pkl")
+        save_calib_data(R_b2c, "/home/logesh/fanuc_ws/src/Camera-Calibration/data/calib_data_finger/hand_eye_rotm.pkl")
+        save_calib_data(t_b2c, "/home/logesh/fanuc_ws/src/Camera-Calibration/data/calib_data_finger/hand_eye_trans.pkl")
     # debug
     print(R_b2c, t_b2c, sep='\n')# calibration procedure 
 

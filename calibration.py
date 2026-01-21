@@ -278,10 +278,11 @@ def collect_eye_hand_data_fanuc(
 
                 # using fanuc robot_controller
                 cartPose = bot.read_current_cartesian_pose()        # [X, Y, Z, W, P, R]
-                trans = cartPose[0:3]
-                rotm = sm.SO3.RPY(np.deg2rad(cartPose[3:6]))
+                trans = np.array(cartPose[0:3])
+                rotm = sm.SO3.RPY(np.deg2rad(cartPose[3:6])).R
                 ee_pose = [rotm, trans]                             # rotm, translation
-                print(ee_pose)
+                # debug
+                # print(ee_pose)
 
                 robot_ee_poses.append(ee_pose)
                 count += 1
@@ -322,20 +323,21 @@ def calibrate_eye_hand(
     return R, t
 
 if __name__ == "__main__":
-    R_g2b = load_calib_data("./data/calib_data/hand_eye_data/R_g2b.pkl")
-    R_t2c = load_calib_data("./data/calib_data/hand_eye_data/R_t2c.pkl")
-    t_g2b = load_calib_data("./data/calib_data/hand_eye_data/t_g2b.pkl")
-    t_t2c = load_calib_data("./data/calib_data/hand_eye_data/t_t2c.pkl")
+    R_g2b = load_calib_data("/home/logesh/fanuc_ws/src/Camera-Calibration/data/calib_data_finger/hand_eye_data/R_g2b.pkl")
+    R_t2c = load_calib_data("/home/logesh/fanuc_ws/src/Camera-Calibration/data/calib_data_finger/hand_eye_data/R_t2c.pkl")
+    t_g2b = load_calib_data("/home/logesh/fanuc_ws/src/Camera-Calibration/data/calib_data_finger/hand_eye_data/t_g2b.pkl")
+    t_t2c = load_calib_data("/home/logesh/fanuc_ws/src/Camera-Calibration/data/calib_data_finger/hand_eye_data/t_t2c.pkl")
 
     R, t = calibrate_eye_hand(
         R_gripper2base=R_g2b,
         t_gripper2base=t_g2b,
         R_target2cam=R_t2c,
         t_target2cam=t_t2c,
-        eye_to_hand=True
+        eye_to_hand=False
     )
     print("ANDREFF: ")
     print(R,t,sep='\n')
+    # print(np.rad2deg(sm.base.tr2rpy(R)))
 
-    # save_calib_data(R, "./calib_data/hand_eye_rotm.pkl")
-    # save_calib_data(t, "./calib_data/hand_eye_trans.pkl")
+    # save_calib_data(R, "/home/logesh/fanuc_ws/src/Camera-Calibration/data/calib_data_finger/hand_eye_rotm.pkl")
+    # save_calib_data(t, "/home/logesh/fanuc_ws/src/Camera-Calibration/data/calib_data_finger/hand_eye_trans.pkl")
