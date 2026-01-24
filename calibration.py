@@ -73,6 +73,44 @@ def collect_checker_board_images(camera, save_dir):
     return array
 
 
+def calibrate_camera_arucoboard(images, cols, rows, marker_length, marker_separation, marker_dict=cv2.aruco.DICT_4X4_50, verbose=True):
+    """Calibrates camera to get camera matrix and distortion coefficients, using aruco board."""
+
+    aruco_dict = cv2.aruco.getPredefinedDictionary(marker_dict)
+    board = cv2.aruco.GridBoard((rows, cols), marker_length, marker_separation, aruco_dict)
+    arucoParams = cv2.aruco.DetectorParameters()
+
+    corners_array = []
+    ids_array = []
+    counter = []
+    imgShape = None
+
+    for idx, image in enumerate(images):
+        print(f"Calibrating image number: {idx+1}")
+        # gray image conversion
+        grayImage = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        corners, ids, rejectedImgPoints = cv2.aruco.detectMarkers(grayImage, aruco_dict, parameters=arucoParams)
+
+        if (ids is None):
+            continue
+
+        corners_array.extend(corners)
+        ids_array.extend(ids.flatten())
+        counter.append(len(ids))
+
+        if imgShape is None:
+            imgShape = grayImage.shape
+
+    ids_array = np.array(ids_array, dtype=np.int32).reshape(-1, 1)
+    counter = np.array(counter, dtype=np.int32)
+
+    # calibrate
+    ret, mtx, dist, rvecs, tvecs = cv2.aruco.calibrateCameraAruco(corners_array, ids_array, np.array(counter), board, imgShape, None, None)
+    print(f"Reprojection Error: {ret}")
+    
+    return mtx, dist
+
+
 def calibrate_camera_checkerboard(images, cols, rows, square_size, verbose=True):
     """Calibrates camera to get camera matrix and distortion coefficients."""
 
