@@ -12,7 +12,7 @@ from calibration import calibrate_camera_arucoboard
 
 
 argparser = argparse.ArgumentParser()
-argparser.add_argument("--devID", type=int, default=0, help="Camera device Id.", required=False)
+argparser.add_argument("--devID", type=int, default=2, help="Camera device Id.", required=False)
 argparser.add_argument("--calibrateOnly", type=bool, default=False, help="Calibration flag, else capture image.", required=False)
 argparser.add_argument("--imgPath", type=str, default="./data/ImgData", help="Images path", required=False)
 camID = argparser.parse_args().devID
@@ -65,15 +65,15 @@ def main():
 
 
     # performing calibration
-    mtx, dist = calibrate_camera_arucoboard(imageCollection, 4, 3, 0.06, 0.006, cv2.aruco.DICT_5X5_250)
+    mtx, dist = calibrate_camera_arucoboard(imageCollection, 4, 3, 0.052, 0.005, cv2.aruco.DICT_5X5_250)
     
     print("Calibration completed")
     print(f"Mat:\n{mtx}\nDist:\n{dist}")
 
     # save image
-    fp = open("./webcamMat.pkl", "wb")
+    fp = open("./camera_matrix.pkl", "wb")
     pickle.dump(mtx, fp)
-    fp1 = open("./webcamDist.pkl", "wb")
+    fp1 = open("./dist_coef.pkl", "wb")
     pickle.dump(dist, fp1)
 
 
