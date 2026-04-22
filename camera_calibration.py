@@ -46,9 +46,18 @@ def calibrate_camera_checkerboard(images, cols, rows, square_size, verbose=True)
 
     cv2.destroyAllWindows()
 
-    rmse, camera_matrix, dist_coeffs, _, _ = cv2.calibrateCamera(
+    rmse, camera_matrix, dist_coeffs, rvecs, tvecs = cv2.calibrateCamera(
         objpoints, imgpoints, gray.shape[::-1], None, None
     )
+
+    # reprojection error:
+    mean_error = 0
+    for i in range(len(objpoints)):
+        imgpoints2, _ = cv2.projectPoints(objpoints[i], rvecs[i], tvecs[i], camera_matrix, dist_coeffs)
+        error = cv2.norm(imgpoints[i], imgpoints2, cv2.NORM_L2SQR) / len(imgpoints2)
+        mean_error += error
+    if (verbose):
+        print("Reprojection Error: {}".format(np.sqrt(mean_error/len(objpoints))) )
 
     return rmse, camera_matrix, dist_coeffs
 
@@ -82,8 +91,8 @@ else:
 def main():
     if (not calibFlag):
         cam = cv2.VideoCapture(camID)
-        cam.set(cv2.CAP_PROP_FRAME_WIDTH, cam_width)
-        cam.set(cv2.CAP_PROP_FRAME_HEIGHT, cam_height)
+        # cam.set(cv2.CAP_PROP_FRAME_WIDTH, cam_width)
+        # cam.set(cv2.CAP_PROP_FRAME_HEIGHT, cam_height)
 
         if (not cam.isOpened()):
             print(f"Not able to open camera; device id: {camID}")
@@ -95,7 +104,7 @@ def main():
         # image collection loop
         while True:
             _, bgr = cam.read()
-            bgr = cv2.resize(bgr, [int(cam_width), int(cam_height)])
+            # bgr = cv2.resize(bgr, [int(cam_width), int(cam_height)])
             if (not _):
                 print("Did not get proper image!")
                 continue
