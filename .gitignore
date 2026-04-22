@@ -2,3 +2,8 @@
 *.jpg
 *.pkl
 *.pyc
+*.npy
+
+*__pycache__/
+
+!example_image.png

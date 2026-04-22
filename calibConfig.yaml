@@ -1,0 +1,8 @@
+# checkboard based camera calibration parameters
+
+no_rows : 3
+no_cols : 6
+square_size : 0.025     # in meters
+
+cam_width : 424.0
+cam_height : 240.0
