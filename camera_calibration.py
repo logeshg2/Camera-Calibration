@@ -128,8 +128,8 @@ def main():
     print(f"Mat:\n{mtx}\nDist:\n{dist}")
 
     # save image
-    np.save("./camera_matrix.pkl", mtx)
-    np.save("./dist_coef.pkl", dist)
+    np.save("./camera_matrix.npy", mtx)
+    np.save("./dist_coef.npy", dist)
 
 
 if __name__ == "__main__":
