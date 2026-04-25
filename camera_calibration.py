@@ -126,7 +126,7 @@ def main():
         imageCollection = []
 
         for image in images:
-            img = cv2.resize(cv2.imread(image), [int(cam_width), int(cam_height)])
+            img = cv2.imread(image) # cv2.resize(cv2.imread(image), [int(cam_width), int(cam_height)])
             imageCollection.append(img)
 
 
